@@ -30,5 +30,10 @@ data/embeddings/
 # -----------------------------
 .DS_Store
 
-# Ignore only Markdown inside data/extracted
+# Ignore extracted files (Markdown, JSON, Python)
 data/extracted/*.md
+data/extracted/*.json
+data/extracted/*.py
+
+# Ignore Python files inside data/raw
+data/raw/*.py
