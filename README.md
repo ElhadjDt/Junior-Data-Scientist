@@ -134,7 +134,7 @@ The CSV file is transformed into a structured table that links each description 
 | program_stream_id    | FK   | Links to normalized program table |
 | section_name         | Text | Section of the description |
 | content              | Text | Raw text content |
-| source               | Text | URL or metadata |
+| source               | Text | URL |
 
 This table becomes the **single source of truth** for all downstream retrieval and QA operations.
 
