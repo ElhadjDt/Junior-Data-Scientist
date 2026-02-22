@@ -299,4 +299,4 @@ List all program streams.
 ---
 
 # 4. Installation & Setup
-**Project Status:** This is the first prototype demonstrating core data engineering, data science, and architecture skills. I want to make sure all requirements are installed and tested in the virtual environment before adding detailed run instructions. The project is also being actively developed locally.
+**Project Status:** This is the first prototype demonstrating core data engineering, data science, and architecture skills. I want to make sure all requirements are installed and tested in the virtual environment before adding detailed run instructions. The project is also being actively developed locally, including enabling an AWS-based demo..
