@@ -282,7 +282,7 @@ List all sites.
 
 #### **GET /sites/{site_id}**
 Retrieve a specific site.  
-![Get Site](docs/imgs/site_detail.png)
+![Get Site](docs/imgs/site_id.png)
 
 #### **GET /sites/{site_id}/programs**
 List all programs associated with a site.  
