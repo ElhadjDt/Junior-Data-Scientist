@@ -1,0 +1,59 @@
+[project]
+name = "carms-data-platform-demo"
+version = "0.1.0"
+description = "A residency program data platform with ETL pipelines, FastAPI backend, RAG QA system, and optional Dagster orchestration."
+requires-python = ">=3.10"
+
+dependencies = [
+    # API
+    "fastapi>=0.110.0",
+    "uvicorn>=0.29.0",
+
+    # Database
+    "sqlmodel>=0.0.16",
+    "sqlalchemy>=2.0.0",
+    "pydantic>=2.0.0",
+
+    # Environment variables
+    "python-dotenv>=1.0.0",
+
+    # Data processing
+    "pandas>=2.0.0",
+    "openpyxl>=3.1.0",
+
+    # RAG / Embeddings / LLM
+    "langchain>=0.1.0",
+    "langchain-openai>=0.1.0",
+    "langchain-community>=0.1.0",
+    "faiss-cpu>=1.7.4",
+    "tiktoken>=0.6.0",
+
+    # Optional orchestration
+    "dagster>=1.7.0",
+    "dagster-webserver>=1.7.0"
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# Source layout: all code lives inside src/
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# Pytest configuration
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+addopts = "-q"
+
+# Code formatting
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+# Import sorting
+[tool.isort]
+profile = "black"

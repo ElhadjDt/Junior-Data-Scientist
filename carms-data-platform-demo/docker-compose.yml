@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: carms_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: carms
+      POSTGRES_PASSWORD: carms
+      POSTGRES_DB: carms_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - carms_net
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: carms_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    networks:
+      - carms_net
+
+networks:
+  carms_net:
+
+volumes:
+  postgres_data:

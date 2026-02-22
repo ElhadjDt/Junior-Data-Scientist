@@ -1,0 +1,34 @@
+# -----------------------------
+# Environment variables
+# -----------------------------
+.env
+**/.env
+
+# -----------------------------
+# Python cache
+# -----------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# -----------------------------
+# Virtual environments
+# -----------------------------
+venv/
+.venv/
+
+# -----------------------------
+# FAISS index and embeddings
+# -----------------------------
+*.faiss
+index.faiss
+data/embeddings/
+
+# -----------------------------
+# OS junk files
+# -----------------------------
+.DS_Store
+
+# Ignore only Markdown inside data/extracted
+data/extracted/*.md
