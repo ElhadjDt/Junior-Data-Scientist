@@ -30,7 +30,7 @@ data/embeddings/
 # -----------------------------
 .DS_Store
 
-# Ignore extracted files (Markdown, JSON, Python)
+# Ignore extracted files (Markdown, JSON, Python) the csv version sufice (same versions)
 data/extracted/*.md
 data/extracted/*.json
 data/extracted/*.py
