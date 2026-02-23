@@ -218,8 +218,8 @@ All responses are returned as JSON objects.
 These endpoints allow users to query the RAG pipeline:
 
 
-![QA API](docs/imgs/qa_api.png)
-
+![QA example_execution](docs/imgs/qa_api.png)
+![QA example2_execution](docs/imgs/qa_qr.png)
 This makes the QA system accessible as a simple HTTP API.
 
 ---
