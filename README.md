@@ -362,7 +362,7 @@ OPENAI_API_KEY=your_key_here
 
 ### Step 3 — Run the ETL Pipeline
 
-You may run the ETL either through Dagster or manually.
+You may run the ETL either through Dagster or manually(Recommanded).
 
 #### Option A — Using Dagster
 
