@@ -370,7 +370,8 @@ From the Dagster UI, execute the ETL job, which includes:
 - Extracting ZIP archives  
 - Loading disciplines  
 - Loading programs  
-- Loading program descriptions  
+- Loading program descriptions
+- Building FAISS embeddings (vector store for the RAG system)  
 
 #### Option B — Manual Execution
 
@@ -378,6 +379,7 @@ From the Dagster UI, execute the ETL job, which includes:
     python -m src.etl.load_disciplines_from_excel
     python -m src.etl.load_programs_from_excel
     python -m src.etl.load_program_documents_from_csv
+    python -m src.qa.embeddings
 
 ### Step 4 — Launch the FastAPI Backend
 
