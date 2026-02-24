@@ -311,7 +311,7 @@ This section describes the full setup required to run the PostgreSQL database, E
 
 ### On macOS/Linux
 
-    python -m venv venv
+    python3 -m venv venv
     source venv/bin/activate
 
 ### On Windows
@@ -321,7 +321,9 @@ This section describes the full setup required to run the PostgreSQL database, E
 
 ## 3. Install Requirements
 
+    pip install --upgrade pip
     pip install -r requirements.txt
+
 
 ## 4. Move to carms-data-platform-demo
 
