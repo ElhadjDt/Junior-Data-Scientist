@@ -340,7 +340,15 @@ Then open `.env` and configure:
 OPENAI_API_KEY=your_key_here  
 
 ## 6. Full Execution Workflow
-
+> **Docker Note**
+>
+> Make sure Docker is installed and running before starting the infrastructure.
+> If you are using **Windows with WSL2** (like me), install:
+>
+> - **Docker Desktop**
+> - Enable **WSL2 integration**
+>
+> This ensures that Docker containers run correctly inside your Linux environment.
 ### Step 1 — Start Infrastructure (PostgreSQL)
 
     docker-compose up -d
