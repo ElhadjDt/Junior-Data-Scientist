@@ -366,9 +366,17 @@ OPENAI_API_KEY=your_key_here
 
 ### Step 3 — Run the ETL Pipeline
 
-You may run the ETL either through Dagster or manually(Recommanded).
+You may run the ETL either manually or through Dagster.
 
-#### Option A — Using Dagster
+#### Option A — Manual Execution (Recommanded - copy&past)
+
+    python -m src.etl.extract_zip
+    python -m src.etl.load_disciplines_from_excel
+    python -m src.etl.load_programs_from_excel
+    python -m src.etl.load_program_documents_from_csv
+    python -m src.qa.embeddings
+
+#### Option B — Using Dagster
 
     dagster dev -m src.etl.dagster_defs
 
@@ -386,13 +394,7 @@ From the Dagster UI, execute the job(`etl_job` then `build_embeddings_job`), whi
 - Loading program descriptions
 - Building FAISS embeddings (vector store for the RAG system)  
 
-#### Option B — Manual Execution (Recommanded _copy&past)
 
-    python -m src.etl.extract_zip
-    python -m src.etl.load_disciplines_from_excel
-    python -m src.etl.load_programs_from_excel
-    python -m src.etl.load_program_documents_from_csv
-    python -m src.qa.embeddings
 
 ### Step 4 — Launch the FastAPI Backend
 
