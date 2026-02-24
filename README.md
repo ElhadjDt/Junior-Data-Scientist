@@ -299,4 +299,82 @@ List all program streams.
 ---
 
 # 4. Installation & Setup
-**Project Status:** This is the first prototype demonstrating core data engineering, data science, and architecture skills. I want to make sure all requirements are installed and tested in the virtual environment before adding detailed run instructions. The project is also being actively developed locally, including enabling an AWS-based demo..
+
+This section describes the full setup required to run the PostgreSQL database, ETL pipelines (manual or Dagster-orchestrated), and the FastAPI backend.
+
+## 1. Clone the Repository
+
+    git clone https://github.com/ElhadjDt/Junior-Data-Scientist.git
+    cd Junior-Data-Scientist
+
+## 2. Create and Activate a Virtual Environment
+
+### On macOS/Linux
+
+    python -m venv venv
+    source venv/bin/activate
+
+### On Windows
+
+    python -m venv venv
+    venv\Scripts\activate
+
+## 3. Install Requirements
+
+    pip install -r requirements.txt
+
+## 4. Move to carms-data-platform-demo
+
+
+    cd carms-data-platform-demo
+
+## 5. Configure Environment Variables
+
+Copy the example environment file and edit it:
+
+    cp .env.example .env
+
+Then open `.env` and configure:
+ 
+- API key for the RAG system and embeding
+OPENAI_API_KEY=your_key_here  
+
+## 6. Full Execution Workflow
+
+### Step 1 — Start Infrastructure (PostgreSQL)
+
+    docker-compose up -d
+
+### Step 2 — Initialize the Database Schema (create tables)
+
+    python -m src.db.init_db
+
+### Step 3 — Run the ETL Pipeline
+
+You may run the ETL either through Dagster or manually.
+
+#### Option A — Using Dagster
+
+    dagster dev
+
+From the Dagster UI, execute the ETL job, which includes:
+
+- Extracting ZIP archives  
+- Loading disciplines  
+- Loading programs  
+- Loading program descriptions  
+
+#### Option B — Manual Execution
+
+    python -m src.etl.extract_zip
+    python -m src.etl.load_disciplines_from_excel
+    python -m src.etl.load_programs_from_excel
+    python -m src.etl.load_program_documents_from_csv
+
+### Step 4 — Launch the FastAPI Backend
+
+    uvicorn src.api.main:app --reload
+
+API documentation available at:
+
+**http://localhost:8000/docs**
