@@ -372,7 +372,7 @@ Dagster will start on:
 
 Below is an example of the Dagster UI showing all ETL and FAISS assets, as well as the two jobs (`etl_job` and `build_embeddings_job`).
 
-![Dagster Pipeline](images/dagster_pipeline.png)
+![Dagster Pipeline](docs.imgs/dagster_pipeline.png)
 
 
 From the Dagster UI, execute the job(`etl_job` then `build_embeddings_job`), which includes:
