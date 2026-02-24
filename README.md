@@ -138,6 +138,10 @@ The CSV file is transformed into a structured table that links each description 
 
 This table becomes the **single source of truth** for all downstream retrieval and QA operations.
 
+Thus, below is the complete normalized relational schema created:
+
+![POSTGRES RDB NORMALIZE RELATIONS](docs/imgs/db_relations.png)
+
 ## 2.3 Text Chunking & Embeddings
 
 Long program descriptions are split into smaller, semantically meaningful chunks.  
