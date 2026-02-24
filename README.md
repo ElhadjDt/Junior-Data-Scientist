@@ -353,7 +353,8 @@ OPENAI_API_KEY=your_key_here
 > This ensures that Docker containers run correctly inside your Linux environment.
 ### Step 1 — Start Infrastructure (PostgreSQL)
 
-    docker-compose up -d
+    docker compose down -v
+    docker compose up --build -d
 
 ### Step 2 — Initialize the Database Schema (create tables)
 
