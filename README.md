@@ -352,7 +352,7 @@ OPENAI_API_KEY=your_key_here
 > If you are using **Windows with WSL2** (like me), install:
 >
 > - **Docker Desktop**
-> - Enable **WSL2 integration**
+> - Enable **WSL2 integration** with your Linux distribution
 >
 > This ensures that Docker containers run correctly inside your Linux environment.
 ### Step 1 — Start Infrastructure (PostgreSQL)
