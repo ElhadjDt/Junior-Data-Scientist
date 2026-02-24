@@ -367,10 +367,6 @@ You may run the ETL either through Dagster or manually.
 
     dagster dev -m src.etl.dagster_defs
 
-Dagster will start on:
-
-    http://127.0.0.1:13000
-
 
 Below is an example of the Dagster UI showing all ETL and FAISS assets, as well as the two jobs (`etl_job` and `build_embeddings_job`).
 
@@ -385,7 +381,7 @@ From the Dagster UI, execute the job(`etl_job` then `build_embeddings_job`), whi
 - Loading program descriptions
 - Building FAISS embeddings (vector store for the RAG system)  
 
-#### Option B — Manual Execution
+#### Option B — Manual Execution (Recommanded _copy&past)
 
     python -m src.etl.extract_zip
     python -m src.etl.load_disciplines_from_excel
