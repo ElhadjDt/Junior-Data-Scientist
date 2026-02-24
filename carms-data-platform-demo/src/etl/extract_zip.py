@@ -5,7 +5,7 @@ import zipfile
 RAW_DIR = Path("../data/raw")
 EXTRACTED_DIR = Path("../data/extracted")
 
-def extract_raw_zip():
+def extract_zip():
     """
     Extract all ZIP files from ../data/raw into ../data/extracted.
     Assumes directories already exist.
@@ -26,4 +26,4 @@ def extract_raw_zip():
 
 
 if __name__ == "__main__":
-    extract_raw_zip()
+    extract_zip()

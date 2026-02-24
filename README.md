@@ -365,7 +365,17 @@ You may run the ETL either through Dagster or manually.
 
     dagster dev -m src.etl.dagster_defs
 
-From the Dagster UI, execute the ETL job, which includes:
+Dagster will start on:
+
+    http://127.0.0.1:13000
+
+
+Below is an example of the Dagster UI showing all ETL and FAISS assets, as well as the two jobs (`etl_job` and `build_embeddings_job`).
+
+![Dagster Pipeline](images/dagster_pipeline.png)
+
+
+From the Dagster UI, execute the job(`etl_job` then `build_embeddings_job`), which includes:
 
 - Extracting ZIP archives  
 - Loading disciplines  
