@@ -81,11 +81,11 @@ Therefore, the file is decomposed into **four relational tables**.
 ### **Table: program**
 | Column              | Type |
 |---------------------|------|
+| program_stream_id   | PK   |
 | discipline_id       | FK → discipline |
 | school_id           | FK → school |
 | site_id             | FK → site |
 | stream_id           | FK → stream |
-| program_stream_id   | PK   |
 | program_name        | Text |
 | program_stream_name | Text |
 | program_url         | Text (url)|
