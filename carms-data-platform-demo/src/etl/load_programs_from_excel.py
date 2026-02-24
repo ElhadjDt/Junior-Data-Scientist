@@ -4,7 +4,7 @@ from src.db.session import engine
 from src.db.models import Program, School, Stream, Site, Discipline
 
 
-def load_programs_from_excel(filepath: str):
+def load_programs(filepath: str):
     """
     Load schools, streams, sites, and programs from a single Excel file.
     Uses Excel column names directly to avoid mapping errors.
@@ -133,4 +133,4 @@ def load_programs_from_excel(filepath: str):
 
 
 if __name__ == "__main__":
-    load_programs_from_excel("../data/raw/1503_program_master.xlsx")
+    load_programs("../data/raw/1503_program_master.xlsx")

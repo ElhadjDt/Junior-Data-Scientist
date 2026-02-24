@@ -4,7 +4,7 @@ from src.db.session import engine
 from src.db.models import Discipline
 
 
-def load_disciplines_from_excel(filepath: str):
+def load_disciplines(filepath: str):
     """
     Load disciplines from an Excel file and insert them into the database.
     Avoids duplicates based on discipline_id.
@@ -41,4 +41,4 @@ def load_disciplines_from_excel(filepath: str):
 
 
 if __name__ == "__main__":
-    load_disciplines_from_excel("../data/raw/1503_discipline.xlsx")
+    load_disciplines("../data/raw/1503_discipline.xlsx")

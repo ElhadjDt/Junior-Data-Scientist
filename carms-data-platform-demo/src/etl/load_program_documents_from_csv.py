@@ -21,7 +21,7 @@ SECTION_COLUMNS = [
 ]
 
 
-def load_program_documents_from_csv(filepath: str):
+def load_program_documents(filepath: str):
     """
     Loads CaRMS program descriptions from CSV, normalizes them
     (wide → long), maps them to Program via program_description_id,
@@ -72,4 +72,4 @@ def load_program_documents_from_csv(filepath: str):
     print(f"Skipped (no matching Program): {skipped}")
 
 if __name__ == "__main__":
-    load_program_documents_from_csv("../data/extracted/1503_program_descriptions_x_section.csv")
+    load_program_documents("../data/extracted/1503_program_descriptions_x_section.csv")

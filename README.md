@@ -363,7 +363,7 @@ You may run the ETL either through Dagster or manually.
 
 #### Option A — Using Dagster
 
-    dagster dev
+    dagster dev -m src.etl.dagster_defs
 
 From the Dagster UI, execute the ETL job, which includes:
 
