@@ -30,7 +30,7 @@ venv:
 
 # Install dependencies
 install:
-	source .venv/bin/activate
+	. .venv/bin/activate
 	pip install --upgrade pip
 	pip install -r requirements.txt
 
@@ -42,12 +42,12 @@ db:
 
 # Initialize database schema
 init-db:
-	source .venv/bin/activate
+	. .venv/bin/activate
 	python -m src.db.init_db
 
 # Run ETL pipeline
 etl:
-	source .venv/bin/activate
+	. .venv/bin/activate
 	python -m src.etl.extract_zip
 	python -m src.etl.load_disciplines_from_excel
 	python -m src.etl.load_programs_from_excel
@@ -55,22 +55,22 @@ etl:
 
 # Build FAISS embeddings
 embeddings:
-	source .venv/bin/activate
+	. .venv/bin/activate
 	python -m src.qa.embeddings
 
 # Run FastAPI backend
 api:
-	source .venv/bin/activate
+	. .venv/bin/activate
 	uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
 
 # Run Dagster UI for pipeline orchestration
 dagster:
-	source .venv/bin/activate
+	. .venv/bin/activate
 	dagster dev -m src.etl.dagster_defs
 
 # Run Streamlit dashboard (calls API; set API_URL if API runs elsewhere)
 dashboard:
-	source .venv/bin/activate
+	. .venv/bin/activate
 	streamlit run dashboard/app.py --server.port 8501
 
 # Setup: DB + schema + ETL + embeddings
