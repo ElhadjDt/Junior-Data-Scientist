@@ -366,4 +366,4 @@ A **containerized approach on AWS** is described in **[docs/aws-architecture.md]
 - **ECS Fargate** or **App Runner** for the FastAPI + RAG API (image built from the project Dockerfile)
 - **S3** for raw data and FAISS index (or EFS for mount)
 - **Secrets Manager** for `OPENAI_API_KEY` and DB credentials
-- Optional: Dagster or Step Functions for ETL/orchestration
+- Dagster or Step Functions for ETL/orchestration
