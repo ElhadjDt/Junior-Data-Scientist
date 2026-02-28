@@ -322,6 +322,7 @@ cp .env.example .env
 
 **project build**
 ```bash
+make clean   
 make build      # venv + install + DB + ETL + embeddings
 make api        # start FastAPI backend
 ```
