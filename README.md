@@ -1,11 +1,10 @@
-# Junior Data Scientist — CARMS Data Platform
+# CARMS Data Platform — End‑to‑End Data Engineering Project
 
-Public-facing CaRMS data scraped from the CaRMS website.
+This project is a data platform built around public CaRMS residency program data.  
+It includes automated ETL pipelines, a normalized PostgreSQL database (3NF), a FastAPI backend, a multi‑tab Streamlit analytics dashboard, Dockerized infrastructure, Makefile automation, and a LangChain‑powered RAG QA system.  
+An AWS‑ready architecture is also provided for production deployment.
 
-> We are modernizing our infrastructure using **PostgreSQL**, **SQLAlchemy/SQLModel**, **Dagster**, **LangChain**, and **FastAPI**. Use the data in this repository to show us your data engineering, data science, and/or visualization skills. Use our stack to show us what you can do! Build something, provide your project GitHub repository link in your application to the Junior Data Scientist position in our group, get an interview, and present your work to us.
-> A sample project using our stack with a **containerized approach, particularly on AWS** will get our attention.
-
-**Stack used in this project:** PostgreSQL, SQLModel, Dagster (ETL orchestration), LangChain + OpenAI (RAG QA), FastAPI (REST API), Docker + Docker Compose, Make (one-command setup), Streamlit (visualization). Target AWS architecture is described in [docs/aws-architecture.md](docs/aws-architecture.md).
+**Stack used:** PostgreSQL, SQLModel, Dagster (ETL orchestration), LangChain + OpenAI (RAG QA), FastAPI (REST API), Docker + Docker Compose, Make (one-command setup), Streamlit (visualization). Target AWS architecture is described in [docs/aws-architecture.md](docs/aws-architecture.md).
 
 # 1. Relational Database Design, Normalization & Population
 
