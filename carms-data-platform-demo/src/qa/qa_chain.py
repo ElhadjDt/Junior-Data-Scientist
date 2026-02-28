@@ -1,19 +1,24 @@
+"""
+RAG QA chain: load FAISS index, retriever + LLM to answer questions from program descriptions.
+Uses configurable FAISS_PATH from src.config for Docker and AWS deployments.
+"""
+from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from dotenv import load_dotenv
+
+from src.config import settings
 
 load_dotenv()
 
-FAISS_PATH = "../data/embeddings/faiss_index"
-
 
 def load_vectorstore():
+    """Load FAISS vector store from configured path."""
     embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
     return FAISS.load_local(
-        FAISS_PATH,
+        settings.FAISS_PATH,
         embeddings,
         allow_dangerous_deserialization=True,
     )

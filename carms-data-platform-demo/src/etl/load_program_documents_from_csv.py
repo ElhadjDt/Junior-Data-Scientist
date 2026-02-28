@@ -72,4 +72,5 @@ def load_program_documents(filepath: str):
     print(f"Skipped (no matching Program): {skipped}")
 
 if __name__ == "__main__":
-    load_program_documents("../data/extracted/1503_program_descriptions_x_section.csv")
+    from src.config import settings
+    load_program_documents(settings.PROGRAM_DESCRIPTIONS_CSV)

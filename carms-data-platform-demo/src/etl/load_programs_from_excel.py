@@ -133,4 +133,5 @@ def load_programs(filepath: str):
 
 
 if __name__ == "__main__":
-    load_programs("../data/raw/1503_program_master.xlsx")
+    from src.config import settings
+    load_programs(settings.PROGRAM_MASTER_EXCEL)

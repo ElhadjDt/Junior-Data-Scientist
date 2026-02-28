@@ -1,8 +1,14 @@
+"""
+Build FAISS vector store from ProgramDocument table for RAG retrieval.
+Uses configurable paths from src.config (FAISS_PATH, DATA_DIR) for Docker compatibility.
+"""
+from pathlib import Path
 from typing import List
 import os
 
 from dotenv import load_dotenv
 from sqlmodel import Session, select
+from src.config import settings
 from src.db.session import engine
 from src.db.models import ProgramDocument
 
@@ -10,12 +16,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 
-
-FAISS_PATH = "../data/embeddings/faiss_index"
-
-
 load_dotenv()
-# Verify key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
     raise RuntimeError("OPENAI_API_KEY is not set in the environment or .env file.")
@@ -83,40 +84,35 @@ def chunk_documents(documents: List[dict]):
 # ---------------------------------------------------------
 # Build FAISS vector store
 # ---------------------------------------------------------
-def build_vectorstore(chunks, persist_path: str = FAISS_PATH):
+def build_vectorstore(chunks, persist_path: str | None = None):
     """
-    Builds a FAISS vector store from text chunks and saves it locally.
+    Build FAISS vector store from text chunks and save to configured path.
+    Uses OPENAI_API_KEY from environment.
     """
-    # OpenAIEmbeddings utilisera OPENAI_API_KEY depuis l'environnement
-    embeddings = OpenAIEmbeddings(
-        model="text-embedding-3-small"  # par exemple, modèle pas cher
-    )
-
+    path = persist_path or settings.FAISS_PATH
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
     vectorstore = FAISS.from_documents(chunks, embeddings)
-    vectorstore.save_local(persist_path)
-
-    print(f"FAISS vector store saved to: {persist_path}")
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    vectorstore.save_local(path)
+    print(f"FAISS vector store saved to: {path}")
     return vectorstore
 
 
 # ---------------------------------------------------------
 # Load FAISS vector store
 # ---------------------------------------------------------
-def load_vectorstore(persist_path: str = FAISS_PATH):
+def load_vectorstore(persist_path: str | None = None):
     """
-    Loads an existing FAISS vector store from disk.
+    Load existing FAISS vector store from configured or given path.
     """
-    embeddings = OpenAIEmbeddings(
-        model="text-embedding-3-small"
-    )
-
+    path = persist_path or settings.FAISS_PATH
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
     vectorstore = FAISS.load_local(
-        persist_path,
+        path,
         embeddings,
         allow_dangerous_deserialization=True,
     )
-
-    print(f"FAISS vector store loaded from: {persist_path}")
+    print(f"FAISS vector store loaded from: {path}")
     return vectorstore
 
 

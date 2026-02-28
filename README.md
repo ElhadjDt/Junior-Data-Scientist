@@ -1,23 +1,25 @@
-# Junior Data Scientist
+# Junior Data Scientist — CARMS Data Platform
+
 Public-facing CaRMS data scraped from the CaRMS website.
 
-We are modernizing our infrastructure using PostgreSQL, SQLAlchemy/SQLModel, Dagster, LangChain, and FastAPI. Use the data in this repository to show us your data engineering, data science, and/or visualization skills. Use our stack to show us what you can do! Build something, provide your project GitHub repository link in your application to the Junior Data Scientist position in our group, get an interview, and present your work to us.
+> We are modernizing our infrastructure using **PostgreSQL**, **SQLAlchemy/SQLModel**, **Dagster**, **LangChain**, and **FastAPI**. Use the data in this repository to show us your data engineering, data science, and/or visualization skills. Use our stack to show us what you can do! Build something, provide your project GitHub repository link in your application to the Junior Data Scientist position in our group, get an interview, and present your work to us.
+> A sample project using our stack with a **containerized approach, particularly on AWS** will get our attention.
 
-A sample project using our stack with a containerized approach, particularly on AWS will get our attention. 
+**Stack used in this project:** PostgreSQL, SQLModel, Dagster (ETL orchestration), LangChain + OpenAI (RAG QA), FastAPI (REST API), Docker + Docker Compose, Make (one-command setup), Streamlit (visualization). Target AWS architecture is described in [docs/aws-architecture.md](docs/aws-architecture.md).
 
 # 1. Relational Database Design, Normalization & Population
 
 ## 1.1 Overview
 
-This project begins by transforming raw CaRMS program data into a fully normalized relational PostgreSQL database.  
+This project begins by transforming raw CaRMS program data into a fully normalized relational PostgreSQL database.
 Two Excel files serve as the foundation for the schema design and population:
 
-- **1503_discipline.xlsx**  
+- **1503_discipline.xlsx**
 - **1503_program_master.xlsx**
 
-The discipline file contains simple key–value pairs, while the program master file contains multiple attributes that must be decomposed to avoid update, insertion, and deletion anomalies.  
-> “Creating a single table program with that file will not be normalized… thus we will need to break down the file into 4 tables for normalization purpose.”  
-> 
+The discipline file contains simple key–value pairs, while the program master file contains multiple attributes that must be decomposed to avoid update, insertion, and deletion anomalies.
+> “Creating a single table program with that file will not be normalized… thus we will need to break down the file into 4 tables for normalization purpose.”
+>
 
 The final schema follows **3rd Normal Form (3NF)** and ensures long‑term maintainability, consistency, and clean referential integrity.
 
@@ -38,22 +40,22 @@ This file maps directly to a normalized table:
 | discipline_id   | PK   |
 | discipline_name | Text |
 
-> “A table discipline is thus created.”  
-> 
+> “A table discipline is thus created.”
+>
 
 ---
 
 ### **2. 1503_program_master.xlsx**
 This file contains multiple attributes mixed together:
 
-- discipline  
-- school  
-- program  
-- program stream  
-- site  
-- program URL  
+- discipline
+- school
+- program
+- program stream
+- site
+- program URL
 
-Storing this in a single table would violate normalization rules.  
+Storing this in a single table would violate normalization rules.
 Therefore, the file is decomposed into **four relational tables**.
 
 ---
@@ -96,12 +98,12 @@ Therefore, the file is decomposed into **four relational tables**.
 The ETL pipeline loads the Excel files **row by row**, and inserts them into the PostgreSQL database.
 
 Tools used:
-- **SQLModel** for ORM models  
-- **Docker Compose** for PostgreSQL container  
-- **Manual ETL or Dagster UI** for orchestration  
+- **SQLModel** for ORM models
+- **Docker Compose** for PostgreSQL container
+- **Manual ETL or Dagster UI** for orchestration
 
-> “ docker‑compose + SQLModel + ETL (manual)/Dagster UI ”  
-> 
+> “ docker‑compose + SQLModel + ETL (manual)/Dagster UI ”
+>
 
 These two files are sufficient to build the **core relational PostgreSQL database** storing and maintaining all disciplines and programs.
 
@@ -113,7 +115,7 @@ These two files are sufficient to build the **core relational PostgreSQL databas
 
 In addition to the relational database, the project includes a **Retrieval‑Augmented Generation (RAG)** pipeline designed to answer questions about CaRMS programs using program descriptions.
 
-The raw program descriptions are provided in 6 ZIP archives containing Markdowns (`.md`), JSONs, and a CSV file.  
+The raw program descriptions are provided in 6 ZIP archives containing Markdowns (`.md`), JSONs, and a CSV file.
 I only use the CSV format file version of the programs description:
 
 - `1503_program_description_x_section.csv`
@@ -144,18 +146,18 @@ Thus, below is the complete normalized relational schema created:
 
 ## 2.3 Text Chunking & Embeddings
 
-Long program descriptions are split into smaller, semantically meaningful chunks.  
+Long program descriptions are split into smaller, semantically meaningful chunks.
 Each chunk is then embedded using an OpenAI embedding model.
 
 Pipeline:
 
-1. **Chunking**  
-   - Split long text into smaller segments  
-   - Preserve section metadata  
+1. **Chunking**
+   - Split long text into smaller segments
+   - Preserve section metadata
 
-2. **Embedding**  
-   - Convert each chunk into a dense vector  
-   - Store vectors in a FAISS index  
+2. **Embedding**
+   - Convert each chunk into a dense vector
+   - Store vectors in a FAISS index
 
 
 
@@ -163,9 +165,9 @@ Pipeline:
 
 The embeddings are stored in a **FAISS vector index**, enabling fast similarity search.
 
-- Efficient retrieval of top‑5 relevant chunks  
-- Reproducible index build  
-- Integrated with LangChain retrievers  
+- Efficient retrieval of top‑5 relevant chunks
+- Reproducible index build
+- Integrated with LangChain retrievers
 
 
 ![FAISS vector store creation](docs/imgs/faiss.png)
@@ -175,12 +177,12 @@ The embeddings are stored in a **FAISS vector index**, enabling fast similarity 
 
 The RAG pipeline follows a standard architecture:
 
-1. **User question**  
-2. **Retriever**  
-   - FAISS returns the top 5 most relevant chunks  
-3. **LLM reasoning**  
-   - model (`gpt-4o-mini`)  
-4. **Answer generation**   
+1. **User question**
+2. **Retriever**
+   - FAISS returns the top 5 most relevant chunks
+3. **LLM reasoning**
+   - model (`gpt-4o-mini`)
+4. **Answer generation**
 
 
 
@@ -191,15 +193,15 @@ This ensures that all answers are grounded in real CaRMS program descriptions.
 
 ## 3.1 Overview
 
-FastAPI serves as the backend layer of the platform, exposing both the **relational database** and the **RAG QA system** through REST endpoints.  
+FastAPI serves as the backend layer of the platform, exposing both the **relational database** and the **RAG QA system** through REST endpoints.
 This allows external applications, dashboards, or analysts to interact with the relational Postgres database and the QA engine.
 
 The backend is fully modular and integrates:
 
-- SQLModel / SQLAlchemy ORM models  
-- Postgre db 
-- FAISS + LangChain RAG pipeline  
-- Automatic API documentation via `/docs`  
+- SQLModel / SQLAlchemy ORM models
+- Postgre db
+- FAISS + LangChain RAG pipeline
+- Automatic API documentation via `/docs`
 
 ---
 
@@ -237,15 +239,15 @@ Below are all relational endpoints exposed by the FastAPI backend, each with a p
 ###  Disciplines
 
 #### **GET /disciplines/**
-List all disciplines.  
+List all disciplines.
 ![List Disciplines](docs/imgs/disciplines_list.png)
 
 #### **GET /disciplines/{discipline_id}**
-Retrieve a specific discipline.  
+Retrieve a specific discipline.
 ![Get Discipline](docs/imgs/discipline_detail.png)
 
 #### **GET /disciplines/{discipline_id}/programs**
-List all programs for a discipline.  
+List all programs for a discipline.
 ![Programs by Discipline](docs/imgs/programs_by_discipline.png)
 
 ---
@@ -253,11 +255,11 @@ List all programs for a discipline.
 ###  Programs
 
 #### **GET /programs/**
-List all programs.  
+List all programs.
 ![List Programs](docs/imgs/programs_list.png)
 
 #### **GET /programs/{program_stream_id}**
-Retrieve a program by stream ID.  
+Retrieve a program by stream ID.
 ![Program by Stream](docs/imgs/program_by_stream.png)
 
 ---
@@ -265,15 +267,15 @@ Retrieve a program by stream ID.
 ###  Schools
 
 #### **GET /schools/**
-List all schools.  
+List all schools.
 ![List Schools](docs/imgs/schools_list.png)
 
 #### **GET /schools/{school_id}**
-Retrieve a specific school.  
+Retrieve a specific school.
 ![Get School](docs/imgs/school_detail.png)
 
 #### **GET /schools/{school_id}/programs**
-List all programs offered by a school.  
+List all programs offered by a school.
 ![School Programs](docs/imgs/school_programs.png)
 
 ---
@@ -281,15 +283,15 @@ List all programs offered by a school.
 ###  Sites
 
 #### **GET /sites/**
-List all sites.  
+List all sites.
 ![List Sites](docs/imgs/sites_list.png)
 
 #### **GET /sites/{site_id}**
-Retrieve a specific site.  
+Retrieve a specific site.
 ![Get Site](docs/imgs/site_id.png)
 
 #### **GET /sites/{site_id}/programs**
-List all programs associated with a site.  
+List all programs associated with a site.
 ![Site Programs](docs/imgs/site_programs.png)
 
 ---
@@ -297,109 +299,71 @@ List all programs associated with a site.
 ###  Streams
 
 #### **GET /streams/**
-List all program streams.  
+List all program streams.
 ![List Streams](docs/imgs/streams_list.png)
 
 ---
 
 # 4. Installation & Setup
 
-This section describes the full setup required to run the PostgreSQL database, ETL pipelines (manual or Dagster-orchestrated), and the FastAPI backend.
+This section describes the full setup: **Make** , **Docker** (full stack), **visualization dashboard**, and **AWS** deployment notes.
 
-## 1. Clone the Repository
+---
 
-    git clone https://github.com/ElhadjDt/Junior-Data-Scientist.git
-    cd Junior-Data-Scientist
+## 4.1 Quick build
 
-## 2. Create and Activate a Virtual Environment
+**Prerequisites:** Docker, Python 3.10+, `make`. On Windows use WSL2 and ensure Docker Desktop has WSL2 integration enabled.
 
-### On macOS/Linux
+```bash
+git clone https://github.com/ElhadjDt/Junior-Data-Scientist.git
+cd Junior-Data-Scientist/carms-data-platform-demo
+cp .env.example .env
+# Edit .env: set OPENAI_API_KEY=your_key_here and optionally DATABASE_URL
+```
 
-    python3 -m venv venv
-    source venv/bin/activate
+**project build**
+```bash
+make build      # venv + install + DB + ETL + embeddings
+make api        # start FastAPI backend
+```
+API docs: http://localhost:8000/docs
 
-### On Windows
+## 4.2 Visualization dashboard (Streamlit)
 
-    python -m venv venv
-    venv\Scripts\activate
+A **Streamlit** app in `carms-data-platform-demo/dashboard/` calls the FastAPI backend:
 
-## 3. Install Requirements
+**Run the dashboard** (in another terminal with API running)
+```bash
+cd Junior-Data-Scientist/carms-data-platform-demo
+make dashboard    # Streamlit dashboard
+```
+  Open **http://localhost:8501**. To point at a different API (e.g. deployed URL), set `API_URL` in the environment.
+  Network URL: http://172.26.180.226:8501
 
-    pip install --upgrade pip
-    pip install -r requirements.txt
+dashboard    
+![List Streams](docs/imgs/dashboard.png)
 
+## 4.3 Optional: Dagster UI
 
-## 4. Move to carms-data-platform-demo
-
-
-    cd carms-data-platform-demo
-
-## 5. Configure Environment Variables
-
-Copy the example environment file and edit it:
-
-    cp .env.example .env
-
-Then open `.env` and configure:
- 
-- API key for the RAG system and embeding
-OPENAI_API_KEY=your_key_here  
-
-## 6. Full Execution Workflow
-> **Docker Note**
->
-> Make sure Docker is installed and running before starting the infrastructure.
-> If you are using **Windows with WSL2** (like me), install:
->
-> - **Docker Desktop**
-> - Enable **WSL2 integration** with your Linux distribution
->
-> This ensures that Docker containers run correctly inside your Linux environment.
-### Step 1 — Start Infrastructure (PostgreSQL)
-
-    docker compose down -v
-    docker compose up --build -d
-
-### Step 2 — Initialize the Database Schema (create tables)
-
-    python -m src.db.init_db
-
-### Step 3 — Run the ETL Pipeline
-
-You may run the ETL either manually or through Dagster.
-
-#### Option A — Manual Execution (Recommanded - copy&past)
-
-    python -m src.etl.extract_zip
-    python -m src.etl.load_disciplines_from_excel
-    python -m src.etl.load_programs_from_excel
-    python -m src.etl.load_program_documents_from_csv
-    python -m src.qa.embeddings
-
-#### Option B — Using Dagster
-
-    dagster dev -m src.etl.dagster_defs
-
-
-Below is an example of the Dagster UI showing all ETL and FAISS assets, as well as the two jobs (`etl_job` and `build_embeddings_job`).
+```bash
+make dagster
+```
 
 ![Dagster Pipeline](docs/imgs/dagster_pipeline.png)
 
+## 4.4 To explore all available commands
+```bash
+make help
+```
 
-From the Dagster UI, execute the job(`etl_job` then `build_embeddings_job`), which includes:
+---
 
-- Extracting ZIP archives  
-- Loading disciplines  
-- Loading programs  
-- Loading program descriptions
-- Building FAISS embeddings (vector store for the RAG system)  
+## 4.5 AWS deployment (target architecture)
 
+A **containerized approach on AWS** is described in **[docs/aws-architecture.md](docs/aws-architecture.md)**. It outlines:
 
-
-### Step 4 — Launch the FastAPI Backend
-
-    uvicorn src.api.main:app --reload
-
-API documentation available at:
-
-**http://localhost:8000/docs**
+- **RDS** (PostgreSQL) for the relational database
+- **ECS Fargate** or **App Runner** for the FastAPI + RAG API (image built from the project Dockerfile)
+- **S3** for raw data and FAISS index (or EFS for mount)
+- **Secrets Manager** for `OPENAI_API_KEY` and DB credentials
+- Optional: Dagster or Step Functions for ETL/orchestration

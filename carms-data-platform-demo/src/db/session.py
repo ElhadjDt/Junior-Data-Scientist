@@ -1,21 +1,19 @@
-# src/db/session.py
-
-from sqlmodel import SQLModel, create_engine, Session
+"""
+Database engine and session factory for SQLModel/SQLAlchemy.
+Used by FastAPI (get_db) and by ETL scripts.
+"""
+from sqlmodel import create_engine, Session
 from src.config import settings
 
-# Database engine
-engine = create_engine(
-    settings.DATABASE_URL,
-    echo=False,
-)
+engine = create_engine(settings.DATABASE_URL, echo=False)
 
-# Session factory for FastAPI
+
 def SessionLocal():
-    """Return a new SQLModel session."""
+    """Return a new SQLModel session (used by FastAPI dependency)."""
     return Session(engine)
 
-# Optional: generator for ETL or scripts
+
 def get_session():
-    """Yield a session (useful for scripts)."""
+    """Context manager for ETL or scripts: yield a session and close after use."""
     with Session(engine) as session:
         yield session

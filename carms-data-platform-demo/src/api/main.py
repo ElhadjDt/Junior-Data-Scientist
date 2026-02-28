@@ -1,8 +1,9 @@
-# api/main.py
-
+"""
+CARMS Residency API — FastAPI application entry point.
+Registers routers for disciplines, programs, schools, sites, streams, and QA (RAG).
+"""
 from fastapi import FastAPI
 
-# Routers
 from src.api.routers import (
     disciplines,
     programs,

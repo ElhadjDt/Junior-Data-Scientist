@@ -1,3 +1,7 @@
+# CARMS platform: PostgreSQL, pgAdmin, and FastAPI API.
+# Run from carms-data-platform-demo: docker compose up -d
+# API expects DB to be initialized and FAISS index at ../data/embeddings/faiss_index
+# (run ETL and embeddings locally or via Makefile before first API use, or mount pre-built data).
 version: "3.9"
 
 services:
@@ -15,6 +19,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - carms_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U carms -d carms_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   pgadmin:
     image: dpage/pgadmin4
@@ -25,6 +34,27 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"
+    networks:
+      - carms_net
+
+  api:
+    build: .
+    container_name: carms_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg2://carms:carms@db:5432/carms_db
+      DATA_DIR: /data
+      FAISS_PATH: /data/embeddings/faiss_index
+    env_file:
+      - .env
+    volumes:
+      # Mount data dir so pre-built FAISS index and optional raw data are available
+      - ./data:/data:ro
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
       - carms_net
 

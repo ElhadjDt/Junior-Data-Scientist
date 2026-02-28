@@ -41,4 +41,5 @@ def load_disciplines(filepath: str):
 
 
 if __name__ == "__main__":
-    load_disciplines("../data/raw/1503_discipline.xlsx")
+    from src.config import settings
+    load_disciplines(settings.DISCIPLINE_EXCEL)
