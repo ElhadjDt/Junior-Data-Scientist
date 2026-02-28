@@ -7,8 +7,8 @@ This document describes a **target architecture** for running the CARMS Data Pla
 - **PostgreSQL** → Amazon RDS (or Aurora PostgreSQL)
 - **Application (FastAPI + RAG)** → Container on ECS Fargate or AWS App Runner
 - **Raw data / FAISS index** → Amazon S3 (with optional sync to container or EFS)
-- **Orchestration (Dagster)** → Optional: ECS task, Lambda-triggered, or EC2
-- **Dashboard (Streamlit)** → Optional: App Runner or ECS, or run locally against deployed API
+- **Orchestration (Dagster)** →  ECS task, Lambda-triggered, or EC2
+- **Dashboard (Streamlit)** →  App Runner or ECS, or run locally against deployed API
 
 ## Suggested Diagram (Logical)
 
@@ -76,4 +76,5 @@ This document describes a **target architecture** for running the CARMS Data Pla
 - Prefer private subnets for RDS and ECS; put ALB/App Runner in public subnets.  
 - Use IAM roles for ECS tasks (no long-lived keys).  
 - Start with minimal instance sizes and single-AZ for cost control; scale as needed.
+
 
