@@ -10,7 +10,7 @@ This document describes a **target architecture** for running the CARMS Data Pla
 - **Orchestration (Dagster)** →  ECS task, Lambda-triggered, or EC2
 - **Dashboard (Streamlit)** →  App Runner or ECS, or run locally against deployed API
 
-## Suggested Diagram (Logical)
+## Suggested Diagram 
 
 ```
                     ┌─────────────────────────────────────────────────────────┐
@@ -41,7 +41,7 @@ This document describes a **target architecture** for running the CARMS Data Pla
 | **Secrets** | Secrets Manager | Store `OPENAI_API_KEY`, DB credentials; inject into ECS task or App Runner. |
 | **Orchestration** | ECS (Dagster) or Step Functions | Run ETL and embedding build on schedule or on event; write FAISS to S3 and trigger API image rebuild if needed. |
 
-## Deployment Steps (High Level)
+## Deployment Steps
 
 1. **Create RDS**  
    - PostgreSQL 16; configure security group and VPC.  
@@ -76,5 +76,6 @@ This document describes a **target architecture** for running the CARMS Data Pla
 - Prefer private subnets for RDS and ECS; put ALB/App Runner in public subnets.  
 - Use IAM roles for ECS tasks (no long-lived keys).  
 - Start with minimal instance sizes and single-AZ for cost control; scale as needed.
+
 
 
