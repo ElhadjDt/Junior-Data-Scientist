@@ -14,7 +14,7 @@ The platform includes:
 - **Optional Dagster orchestration** for ETL workflow visualization
 - A **production-oriented AWS architecture design**
 
-The goal of the project is to demonstrate **data engineering, backend development, and applied machine learning workflows** in a reproducible containerized environment.
+The goal is to demonstrate practical workflows in data engineering and data science within a reproducible containerized environment.
 
 ---
 
