@@ -33,13 +33,16 @@ A target **AWS deployment architecture** is also provided in:
 [AWS Deployment Architecture](docs/aws-architecture.md)
 
 ---
+
 ## Table of Contents
 1. [System Architecture](#1-system-architecture)
 2. [Installation & Setup](#2-installation--setup)  
 3. [Relational Database Design](#3-relational-database-design-normalization--population)  
 4. [RAG QA System](#4-qa-rag-system-retrieval-augmented-generation)  
-5. [FastAPI Backend](#5-fastapi-backend-database--qa-endpoints)  
+5. [FastAPI Backend](#5-fastapi-backend-database--qa-endpoints)
+   
 ---
+
 ## 1. System Architecture
 
 The platform is composed of four main layers:
@@ -58,7 +61,9 @@ The platform is composed of four main layers:
 
 4. **Presentation Layer**
    - Streamlit analytics dashboard
+     
 ---
+
 # 2. Installation & Setup
 
 This section describes how to build and run the **CARMS Data Platform using Docker Compose**.  
@@ -66,7 +71,6 @@ The platform includes PostgreSQL, ETL pipelines, FAISS embeddings generation, a 
 
 All components run in **containerized services**, enabling reproducible local execution and a deployment pattern compatible with AWS container services.
 
----
 
 # 2.1 Prerequisites
 
@@ -83,16 +87,12 @@ docker --version
 docker compose version
 ```
 
----
-
 # 2.2 Clone the Repository
 
 ```bash
 git clone https://github.com/ElhadjDt/Junior-Data-Scientist.git
 cd Junior-Data-Scientist/carms-data-platform-demo
 ```
-
----
 
 # 2.3 Configure Environment Variables
 
@@ -107,8 +107,6 @@ Edit `.env` and add your OpenAI API key:
 ```env
 OPENAI_API_KEY=your_api_key_here
 ```
-
----
 
 # 2.4 Data Directory Structure
 
@@ -150,8 +148,6 @@ data/
 | extracted | Processed CSV files extracted from archives |
 | embeddings | FAISS vector index used by the RAG system |
 
----
-
 # 2.5 Build the Platform Image
 
 Build the Docker image containing the application environment.
@@ -169,8 +165,6 @@ This image contains:
 - Streamlit dashboard
 - Dagster orchestration dependencies
 
----
-
 # 2.6 Start PostgreSQL
 
 Start the PostgreSQL database container:
@@ -185,8 +179,6 @@ Verify that the service is running:
 docker compose ps
 ```
 
----
-
 # 2.7 Initialize the Database Schema
 
 Create all relational database tables:
@@ -196,8 +188,6 @@ docker compose run --rm init-db
 ```
 
 This step builds the normalized PostgreSQL schema defined with SQLModel.
-
----
 
 # 2.8 Run the ETL Pipeline
 
@@ -213,8 +203,6 @@ The ETL process performs the following steps:
 2. Load discipline data  
 3. Load program data  
 4. Load program descriptions  
-
----
 
 # 2.9 Generate Embeddings and Build the FAISS Index
 
@@ -236,8 +224,6 @@ The vector store is stored in:
 data/embeddings/faiss_index
 ```
 
----
-
 # 2.10 Start the API and Analytics Dashboard
 
 Launch the backend API and visualization dashboard:
@@ -255,8 +241,6 @@ Services will be available at:
 
 Example Streamlit dashboard interface:
 ![List Streams](docs/imgs/dashboard.png)
-
----
 
 # 2.11 Optional: Start Dagster Orchestration UI
 
@@ -292,7 +276,6 @@ Example Dagster orchestration interface:
 
 ![Dagster Pipeline](docs/imgs/dagster_pipeline.png)
 
----
 
 # 2.12 Monitoring Services
 
@@ -314,8 +297,6 @@ View logs for the dashboard:
 docker compose logs -f dashboard
 ```
 
----
-
 # 2.13 Stop the Platform
 
 Stop all running services:
@@ -330,7 +311,6 @@ To stop services and remove the PostgreSQL volume:
 docker compose down -v
 ```
 
----
 
 # 2.14 Complete Setup Workflow
 
@@ -353,7 +333,6 @@ docker compose up -d dagster
 
 After these steps, the entire **CARMS Data Platform** will be operational.
 
----
 
 ## 2.15 AWS Deployment (Target Architecture)
 
@@ -370,6 +349,7 @@ The architecture outlines how the platform can be deployed using managed AWS ser
 
 This architecture enables a fully containerized data platform with scalable API services, managed database infrastructure, and cloud storage for vector search artifacts.
 
+---
 
 # 3. Relational Database Design, Normalization & Population
 
@@ -387,7 +367,7 @@ The discipline file contains simple key–value pairs, while the program master 
 
 The final schema follows **3rd Normal Form (3NF)** and ensures long‑term maintainability, consistency, and clean referential integrity.
 
----
+
 
 ## 3.2 Source Files
 
@@ -407,7 +387,7 @@ This file maps directly to a normalized table:
 > “A table discipline is thus created.”
 >
 
----
+
 
 ### **2. 1503_program_master.xlsx**
 This file contains multiple attributes mixed together:
@@ -422,7 +402,7 @@ This file contains multiple attributes mixed together:
 Storing this in a single table would violate normalization rules.
 Therefore, the file is decomposed into **four relational tables**.
 
----
+
 
 ## 3.3 Normalized Schema (3NF)
 
@@ -553,6 +533,7 @@ The RAG pipeline follows a standard architecture:
 This ensures that all answers are grounded in real CaRMS program descriptions.
 
 ---
+
 # 5. FastAPI Backend (Database + QA Endpoints)
 
 ## 5.1 Overview
@@ -566,7 +547,7 @@ The backend is fully modular and integrates:
 - FAISS + LangChain RAG pipeline
 - Automatic API documentation via `/docs`
 
----
+
 
 ## 5.2 Architecture
 
@@ -577,7 +558,7 @@ These endpoints expose normalized relational data:
 
 ![data base api](docs/imgs/db_api.png)
 
----
+
 
 ### **2. QA Endpoints (RAG System)**
 These endpoints allow users to query the RAG pipeline:
@@ -587,7 +568,7 @@ These endpoints allow users to query the RAG pipeline:
 ![QA example2_execution](docs/imgs/qa_qr.png)
 This makes the QA system accessible as a simple HTTP API.
 
----
+
 ## 5.3 Relational Database Endpoints
 
 Detailed endpoint execution examples and screenshots are available in:
