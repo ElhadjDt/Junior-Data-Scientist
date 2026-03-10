@@ -1,81 +1,300 @@
-# AWS Deployment Architecture (Target)
+# AWS Deployment Architecture
 
-This document describes a **target architecture** for running the CARMS Data Platform on AWS using a containerized approach. It is intended as a blueprint for production-style deployment and can be implemented incrementally.
+This document describes the **deployment architecture of the CARMS Data Platform** and how the current local containerized setup can be deployed to AWS using managed cloud services.
 
-## Overview
+The project currently runs locally using **Docker Compose**, and the architecture below shows how the same components can be mapped to AWS infrastructure for production-style deployment.
 
-- **PostgreSQL** → Amazon RDS (or Aurora PostgreSQL)
-- **Application (FastAPI + RAG)** → Container on ECS Fargate or AWS App Runner
-- **Raw data / FAISS index** → Amazon S3 (with optional sync to container or EFS)
-- **Orchestration (Dagster)** →  ECS task, Lambda-triggered, or EC2
-- **Dashboard (Streamlit)** →  App Runner or ECS, or run locally against deployed API
+---
 
-## Suggested Diagram 
+# 1. Overview
+
+The CARMS Data Platform consists of the following main components:
+
+- **PostgreSQL relational database**
+- **ETL pipelines** for loading CaRMS program data
+- **Embedding generation pipeline** to build a FAISS vector index
+- **FastAPI backend** exposing both relational and RAG endpoints
+- **Streamlit analytics dashboard**
+
+The platform is designed to run locally using containers and can be deployed to AWS with minimal architectural changes.
+
+---
+
+# 2. Current Local Architecture (Docker Compose)
+
+The project currently runs as a **local containerized data platform** using Docker Compose.
+
+### Containers
+
+| Service | Purpose |
+|------|------|
+| `db` | PostgreSQL database |
+| `init-db` | Creates the relational schema |
+| `etl` | Loads CaRMS datasets into PostgreSQL |
+| `embeddings` | Generates the FAISS vector index |
+| `api` | FastAPI backend exposing database + RAG endpoints |
+| `dashboard` | Streamlit analytics dashboard |
+
+### Shared Data Directory
+
+All services share a mounted repository-level directory:
 
 ```
-                    ┌─────────────────────────────────────────────────────────┐
-                    │                      AWS Cloud                           │
-                    │  ┌─────────────┐    ┌──────────────┐    ┌────────────┐  │
-  Users / API       │  │   ALB or     │───▶│  ECS Fargate  │    │    RDS     │  │
-  clients           │  │ App Runner  │    │  (FastAPI +   │───▶│ PostgreSQL │  │
-  ────────────────▶ │  │  (API)      │    │   RAG/FAISS)  │    │            │  │
-                    │  └─────────────┘    └──────┬───────┘    └────────────┘  │
-                    │                            │                             │
-                    │                            │ read at build/time          │
-                    │                            ▼                             │
-                    │  ┌─────────────┐    ┌──────────────┐                     │
-                    │  │     S3      │◀───│  ETL /       │                     │
-                    │  │ Raw data +  │    │  Dagster     │                     │
-                    │  │ FAISS index │    │              │                     │
-                    │  └─────────────┘    └──────────────┘                     │
-                    └─────────────────────────────────────────────────────────┘
+data/
+├── raw
+├── extracted
+└── embeddings
 ```
 
-## Components
+| Folder | Purpose |
+|------|------|
+| `raw` | Original CaRMS data files |
+| `extracted` | ETL-generated structured files |
+| `embeddings` | FAISS vector index |
 
-| Component | AWS Service | Notes |
+---
+
+## Local Architecture Diagram
+
+```
+                    ┌─────────────────────────────┐
+                    │      Docker Compose         │
+                    └──────────────┬──────────────┘
+                                   │
+     ┌─────────────────────────────┼─────────────────────────────┐
+     │                             │                             │
+     ▼                             ▼                             ▼
+┌──────────────┐           ┌──────────────┐              ┌──────────────┐
+│   init-db    │           │     etl      │              │  embeddings  │
+│ create schema│           │ load data    │              │ build FAISS  │
+└──────┬───────┘           └──────┬───────┘              └──────┬───────┘
+       │                          │                             │
+       └──────────────┬───────────┴──────────────┬──────────────┘
+                      │                          │
+                      ▼                          ▼
+               ┌──────────────┐         ┌────────────────┐
+               │ PostgreSQL   │         │ data/          │
+               │ normalized DB│         │ raw/extracted/ │
+               └──────┬───────┘         │ embeddings/    │
+                      │                 └────────────────┘
+                      ▼
+               ┌──────────────┐
+               │   FastAPI    │
+               │ DB + RAG API │
+               └──────┬───────┘
+                      ▼
+               ┌──────────────┐
+               │  Streamlit   │
+               │ Dashboard    │
+               └──────────────┘
+```
+
+---
+
+# 3. Target AWS Deployment Architecture
+
+The target AWS architecture keeps the same logical components while replacing local infrastructure with managed AWS services.
+
+### AWS Services
+
+| Component | AWS Service | Purpose |
 |-----------|-------------|--------|
-| **Database** | RDS PostgreSQL or Aurora | Same schema and connection string; use security groups to allow only API. |
-| **API + RAG** | ECS Fargate or App Runner | Build image from project Dockerfile; set `DATABASE_URL`, `FAISS_PATH`, and optionally mount S3/EFS for FAISS index. |
-| **Data & embeddings** | S3 | Store raw ZIP/Excel/CSV and pre-built FAISS index; copy into container at build or mount via EFS/volume. |
-| **Secrets** | Secrets Manager | Store `OPENAI_API_KEY`, DB credentials; inject into ECS task or App Runner. |
-| **Orchestration** | ECS (Dagster) or Step Functions | Run ETL and embedding build on schedule or on event; write FAISS to S3 and trigger API image rebuild if needed. |
+| Database | Amazon RDS PostgreSQL | Managed relational database |
+| API + RAG | ECS Fargate or AWS App Runner | Run the FastAPI container |
+| Data storage | Amazon S3 | Store raw data and FAISS artifacts |
+| Secrets | AWS Secrets Manager | Store API keys and database credentials |
+| ETL orchestration | ECS scheduled tasks / Dagster / Step Functions | Run ETL and embedding generation |
+| Dashboard | App Runner / ECS / local | Streamlit analytics interface |
 
-## Deployment Steps
+---
 
-1. **Create RDS**  
-   - PostgreSQL 16; configure security group and VPC.  
-   - Run schema init (e.g. `python -m src.db.init_db` with RDS endpoint as `DATABASE_URL`).
+## AWS Architecture Diagram
 
-2. **Build and push API image**  
-   - Use existing `Dockerfile` in `carms-data-platform-demo/`.  
-   - Push to Amazon ECR:  
-     `aws ecr get-login-password --region <region> | docker login ...`  
-     `docker build -t carms-api . && docker tag ... && docker push ...`
+```
+                    ┌─────────────────────────────────────────────────────┐
+                    │                     AWS Cloud                       │
+                    │                                                     │
+Users / Clients ───▶│   ┌──────────────────────────────┐                  │
+                    │   │   ECS Fargate / App Runner   │                  │
+                    │   │      FastAPI + RAG API       │                  │
+                    │   └───────────────┬──────────────┘                  │
+                    │                   │                                 │
+                    │                   ▼                                 │
+                    │         ┌────────────────────┐                      │
+                    │         │   Amazon RDS       │                      │
+                    │         │   PostgreSQL       │                      │
+                    │         └────────────────────┘                      │
+                    │                                                     │
+                    │                   ▲                                 │
+                    │                   │                                 │
+                    │   ┌───────────────┴──────────────┐                  │
+                    │   │ ETL / Embeddings Jobs        │                  │
+                    │   │ ECS Tasks / Dagster /        │                  │
+                    │   │ Step Functions               │                  │
+                    │   └───────────────┬──────────────┘                  │
+                    │                   │                                 │
+                    │                   ▼                                 │
+                    │         ┌────────────────────┐                      │
+                    │         │     Amazon S3      │                      │
+                    │         │ raw + extracted +  │                      │
+                    │         │ embeddings / FAISS │                      │
+                    │         └────────────────────┘                      │
+                    │                                                     │
+                    │         ┌────────────────────┐                      │
+                    │         │ Secrets Manager    │                      │
+                    │         │ API keys / DB creds│                      │
+                    │         └────────────────────┘                      │
+                    └─────────────────────────────────────────────────────┘
+```
 
-3. **Run ETL and embeddings**  
-   - Run once (locally or in a one-off ECS task) with `DATABASE_URL` pointing to RDS.  
-   - Upload FAISS index (and optional raw data) to S3.
+---
 
-4. **Deploy API**  
-   - **App Runner**: Create service from ECR image; set env vars (`DATABASE_URL`, `FAISS_PATH`, `OPENAI_API_KEY` from Secrets Manager). If FAISS is in image, set `FAISS_PATH` to path inside image; otherwise use EFS or init container that pulls from S3.  
-   - **ECS Fargate**: Task definition with same env; optionally mount EFS volume for `/data` and sync FAISS from S3 at startup.
+# 4. Storage Strategy
 
-5. **Dashboard**  
-   - Set `API_URL` to the deployed API URL; run Streamlit locally or deploy a second container (e.g. App Runner) that points to the API.
+### Relational Database
 
-## Environment Variables for AWS
+The normalized relational schema is stored in **Amazon RDS PostgreSQL**.
 
-- `DATABASE_URL` — RDS connection string (e.g. `postgresql+psycopg2://user:pass@rds-endpoint:5432/carms_db`).  
-- `FAISS_PATH` — Path to FAISS index inside container (e.g. `/data/embeddings/faiss_index`) or where EFS is mounted.  
-- `DATA_DIR` — Base path for data/embeddings if using volume mount.  
-- `OPENAI_API_KEY` — From Secrets Manager or task environment (secure).
+### Raw and Processed Data
 
-## Security and Cost Notes
+Source files and ETL outputs are stored in **Amazon S3**, including:
 
-- Prefer private subnets for RDS and ECS; put ALB/App Runner in public subnets.  
-- Use IAM roles for ECS tasks (no long-lived keys).  
-- Start with minimal instance sizes and single-AZ for cost control; scale as needed.
+- raw Excel and ZIP files
+- extracted CSV files
+- generated metadata artifacts
 
+### FAISS Vector Index
 
+The FAISS index can be handled in several ways:
 
+1. Bundled inside the API container image
+2. Stored in S3 and downloaded at container startup
+3. Stored in Amazon EFS and mounted into the container
+
+For lightweight deployments, storing the FAISS index in **S3** is usually sufficient.
+
+---
+
+# 5. Deployment Flow
+
+### Step 1 — Create RDS Database
+
+Provision an **Amazon RDS PostgreSQL** instance and configure:
+
+- database name
+- credentials
+- VPC and security groups
+
+Run schema initialization:
+
+```
+python -m src.db.init_db
+```
+
+with `DATABASE_URL` pointing to the RDS instance.
+
+---
+
+### Step 2 — Build and Push Docker Image
+
+Build the API container image from the project Dockerfile and push it to **Amazon ECR**.
+
+Example:
+
+```
+docker build -t carms-api .
+docker tag carms-api:latest <aws_account>.dkr.ecr.<region>.amazonaws.com/carms-api
+docker push <aws_account>.dkr.ecr.<region>.amazonaws.com/carms-api
+```
+
+---
+
+### Step 3 — Run ETL and Embedding Pipelines
+
+Execute ETL and embedding generation using:
+
+- ECS tasks
+- scheduled ECS jobs
+- Dagster running on ECS
+- Step Functions workflows
+
+Generated data and vector artifacts are stored in **S3**.
+
+---
+
+### Step 4 — Deploy FastAPI API
+
+Deploy the API container using:
+
+- **AWS App Runner** for simple managed deployments  
+or
+- **ECS Fargate** for more infrastructure control.
+
+Environment variables are injected from **Secrets Manager**.
+
+---
+
+### Step 5 — Deploy or Connect the Dashboard
+
+The Streamlit dashboard can:
+
+- run locally against the deployed API
+- or be deployed as a container on App Runner or ECS.
+
+---
+
+# 6. Environment Variables
+
+The AWS deployment uses the same configuration model as the local environment.
+
+| Variable | Purpose |
+|------|------|
+| `DATABASE_URL` | PostgreSQL connection string |
+| `DATA_DIR` | Base data directory |
+| `FAISS_PATH` | Path to FAISS vector index |
+| `OPENAI_API_KEY` | OpenAI API key |
+| `API_URL` | Base URL for the Streamlit dashboard |
+
+Example:
+
+```
+DATABASE_URL=postgresql+psycopg2://user:password@rds-endpoint:5432/carms_db
+DATA_DIR=/data
+FAISS_PATH=/data/embeddings/faiss_index
+OPENAI_API_KEY=...
+```
+
+---
+
+# 7. Security Considerations
+
+- Place **RDS in private subnets**
+- Use **security groups** to restrict database access
+- Store secrets in **AWS Secrets Manager**
+- Use **IAM roles for ECS tasks**
+- Avoid storing credentials in the container image
+
+---
+
+# 8. Cost Optimization
+
+For a demonstration deployment:
+
+- use small **RDS instance types**
+- start with **single-AZ** deployment
+- run ETL pipelines as **on-demand tasks**
+- keep dashboard optional if API access is sufficient
+
+---
+
+# 9. Summary
+
+The CARMS Data Platform implements a reproducible **local containerized data platform** with:
+
+- normalized relational storage
+- ETL data ingestion pipelines
+- FAISS vector indexing
+- FastAPI API layer
+- Streamlit analytics dashboard
+
+The AWS architecture preserves this design while replacing local infrastructure with **managed cloud services such as RDS, ECS, S3, and Secrets Manager**, enabling scalable deployment with minimal changes to the application code.

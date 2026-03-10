@@ -1,14 +1,379 @@
-# CARMS Data Platform — End‑to‑End Data Engineering Project
+# CARMS Data Platform — End-to-End Data Engineering Project
 
-This project is a data platform built around public CaRMS residency program data.  
-It includes automated ETL pipelines, a normalized PostgreSQL database (3NF), a FastAPI backend, a multi‑tab Streamlit analytics dashboard, Dockerized infrastructure, Makefile automation, and a LangChain‑powered RAG QA system.  
-An AWS‑ready architecture is also provided for production deployment.
+This project implements a **data platform built around public CaRMS residency program data**.  
+It demonstrates how raw datasets can be transformed into a structured analytical platform with automated pipelines, a relational database, an API layer, and a Retrieval-Augmented Generation (RAG) system.
 
-**Stack used:** PostgreSQL, SQLModel, Dagster (ETL orchestration), LangChain + OpenAI (RAG QA), FastAPI (REST API), Docker + Docker Compose, Make (one-command setup), Streamlit (visualization). Target AWS architecture is described in [docs/aws-architecture.md](docs/aws-architecture.md).
+The platform includes:
 
-# 1. Relational Database Design, Normalization & Population
+- **Automated ETL pipelines** for transforming CaRMS datasets
+- A **normalized PostgreSQL relational database (3NF)**
+- A **FastAPI backend** exposing relational and QA endpoints
+- A **Streamlit analytics dashboard** for data exploration
+- A **RAG pipeline** using LangChain, OpenAI embeddings, and FAISS
+- **Containerized infrastructure** using Docker and Docker Compose
+- **Optional Dagster orchestration** for ETL workflow visualization
+- A **production-oriented AWS architecture design**
 
-## 1.1 Overview
+The goal of the project is to demonstrate **data engineering, backend development, and applied machine learning workflows** in a reproducible containerized environment.
+
+---
+
+## Technology Stack
+
+- **PostgreSQL** — relational data storage  
+- **SQLModel / SQLAlchemy** — database ORM and schema modeling  
+- **Dagster** — optional ETL orchestration  
+- **LangChain + OpenAI** — RAG QA system  
+- **FAISS** — vector similarity search  
+- **FastAPI** — REST API backend  
+- **Streamlit** — analytics dashboard  
+- **Docker & Docker Compose** — containerized infrastructure  
+
+A target **AWS deployment architecture** is also provided in:
+[AWS Deployment Architecture](docs/aws-architecture.md)
+
+---
+## Table of Contents
+1. [System Architecture](#1-system-architecture)
+2. [Installation & Setup](#2-installation--setup)  
+3. [Relational Database Design](#3-relational-database-design-normalization--population)  
+4. [RAG QA System](#4-qa-rag-system-retrieval-augmented-generation)  
+5. [FastAPI Backend](#5-fastapi-backend-database--qa-endpoints)  
+---
+## 1. System Architecture
+
+The platform is composed of four main layers:
+
+1. **Data Layer**
+   - Raw CaRMS datasets (Excel, CSV, ZIP)
+   - PostgreSQL relational database
+
+2. **Processing Layer**
+   - ETL pipelines for data ingestion
+   - Embedding generation pipeline
+
+3. **Application Layer**
+   - FastAPI backend
+   - RAG QA system
+
+4. **Presentation Layer**
+   - Streamlit analytics dashboard
+---
+# 2. Installation & Setup
+
+This section describes how to build and run the **CARMS Data Platform using Docker Compose**.  
+The platform includes PostgreSQL, ETL pipelines, FAISS embeddings generation, a FastAPI backend, a Streamlit analytics dashboard, and optional Dagster orchestration.
+
+All components run in **containerized services**, enabling reproducible local execution and a deployment pattern compatible with AWS container services.
+
+---
+
+# 2.1 Prerequisites
+
+Ensure the following tools are installed:
+
+- Docker
+- Docker Compose
+- Git
+
+Verify installation:
+
+```bash
+docker --version
+docker compose version
+```
+
+---
+
+# 2.2 Clone the Repository
+
+```bash
+git clone https://github.com/ElhadjDt/Junior-Data-Scientist.git
+cd Junior-Data-Scientist/carms-data-platform-demo
+```
+
+---
+
+# 2.3 Configure Environment Variables
+
+Create a `.env` file from the template:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and add your OpenAI API key:
+
+```env
+OPENAI_API_KEY=your_api_key_here
+```
+
+---
+
+# 2.4 Data Directory Structure
+
+The repository expects a **data directory located at the repository root**.
+
+Project layout:
+
+```
+repo/
+├── carms-data-platform-demo/
+├── data/
+│   └── raw/
+└── docs/
+```
+
+Initially, the `data` directory should contain only the **raw CaRMS datasets**:
+
+```
+data/
+└── raw
+    ├── 1503_discipline.xlsx
+    ├── 1503_program_master.xlsx
+    ├── 1503_program_descriptions_x_section.zip
+    └── other CaRMS archives
+```
+
+During execution, the pipeline automatically generates additional directories:
+
+```
+data/
+├── raw
+├── extracted
+└── embeddings
+```
+
+| Directory | Purpose |
+|----------|--------|
+| raw | Original CaRMS data files |
+| extracted | Processed CSV files extracted from archives |
+| embeddings | FAISS vector index used by the RAG system |
+
+---
+
+# 2.5 Build the Platform Image
+
+Build the Docker image containing the application environment.
+
+```bash
+docker compose build
+```
+
+This image contains:
+
+- Python runtime
+- project dependencies
+- ETL pipelines
+- FastAPI backend
+- Streamlit dashboard
+- Dagster orchestration dependencies
+
+---
+
+# 2.6 Start PostgreSQL
+
+Start the PostgreSQL database container:
+
+```bash
+docker compose up -d db
+```
+
+Verify that the service is running:
+
+```bash
+docker compose ps
+```
+
+---
+
+# 2.7 Initialize the Database Schema
+
+Create all relational database tables:
+
+```bash
+docker compose run --rm init-db
+```
+
+This step builds the normalized PostgreSQL schema defined with SQLModel.
+
+---
+
+# 2.8 Run the ETL Pipeline
+
+Load CaRMS datasets into the database:
+
+```bash
+docker compose run --rm etl
+```
+
+The ETL process performs the following steps:
+
+1. Extract ZIP archives  
+2. Load discipline data  
+3. Load program data  
+4. Load program descriptions  
+
+---
+
+# 2.9 Generate Embeddings and Build the FAISS Index
+
+Create embeddings used by the RAG QA system:
+
+```bash
+docker compose run --rm embeddings
+```
+
+This step:
+
+- splits program descriptions into chunks
+- generates OpenAI embeddings
+- builds the FAISS similarity index
+
+The vector store is stored in:
+
+```
+data/embeddings/faiss_index
+```
+
+---
+
+# 2.10 Start the API and Analytics Dashboard
+
+Launch the backend API and visualization dashboard:
+
+```bash
+docker compose up -d api dashboard
+```
+
+Services will be available at:
+
+| Service | URL |
+|--------|-----|
+| FastAPI documentation | http://localhost:8000/docs |
+| Streamlit dashboard | http://localhost:8501 |
+
+Example Streamlit dashboard interface:
+![List Streams](docs/imgs/dashboard.png)
+
+---
+
+# 2.11 Optional: Start Dagster Orchestration UI
+
+The platform also includes **Dagster** as an optional orchestration layer for visualizing and executing ETL workflows.
+
+Start Dagster:
+
+```bash
+docker compose up -d dagster
+```
+
+Dagster will be available at:
+
+```
+http://localhost:3000
+```
+
+The Dagster interface allows:
+
+- visualizing ETL pipelines
+- manually launching pipeline runs
+- inspecting pipeline logs
+- monitoring workflow execution
+
+Dagster interacts with the same PostgreSQL database and shared data directory used by the other services.
+
+Stop Dagster:
+
+```bash
+docker compose stop dagster
+```
+Example Dagster orchestration interface:
+
+![Dagster Pipeline](docs/imgs/dagster_pipeline.png)
+
+---
+
+# 2.12 Monitoring Services
+
+Check running containers:
+
+```bash
+docker compose ps
+```
+
+View logs for the API:
+
+```bash
+docker compose logs -f api
+```
+
+View logs for the dashboard:
+
+```bash
+docker compose logs -f dashboard
+```
+
+---
+
+# 2.13 Stop the Platform
+
+Stop all running services:
+
+```bash
+docker compose down
+```
+
+To stop services and remove the PostgreSQL volume:
+
+```bash
+docker compose down -v
+```
+
+---
+
+# 2.14 Complete Setup Workflow
+
+Full setup sequence:
+
+```bash
+docker compose build
+docker compose up -d db
+docker compose run --rm init-db
+docker compose run --rm etl
+docker compose run --rm embeddings
+docker compose up -d api dashboard
+```
+
+(Optional Dagster)
+
+```bash
+docker compose up -d dagster
+```
+
+After these steps, the entire **CARMS Data Platform** will be operational.
+
+---
+
+## 2.15 AWS Deployment (Target Architecture)
+
+A production-style **containerized deployment on AWS** is described in  
+[AWS Deployment Architecture](docs/aws-architecture.md).
+
+The architecture outlines how the platform can be deployed using managed AWS services:
+
+- **Amazon RDS (PostgreSQL)** for the relational database  
+- **ECS Fargate** or **AWS App Runner** for the FastAPI + RAG API  
+- **Amazon S3** for raw datasets and the FAISS vector index  
+- **AWS Secrets Manager** for secure storage of `OPENAI_API_KEY` and database credentials  
+- **Dagster (ECS task)** or **AWS Step Functions** for scheduled ETL and embedding generation  
+
+This architecture enables a fully containerized data platform with scalable API services, managed database infrastructure, and cloud storage for vector search artifacts.
+
+
+# 3. Relational Database Design, Normalization & Population
+
+## 3.1 Overview
 
 This project begins by transforming raw CaRMS program data into a fully normalized relational PostgreSQL database.
 Two Excel files serve as the foundation for the schema design and population:
@@ -24,7 +389,7 @@ The final schema follows **3rd Normal Form (3NF)** and ensures long‑term maint
 
 ---
 
-## 1.2 Source Files
+## 3.2 Source Files
 
 ### **1. 1503_discipline.xlsx**
 Contains:
@@ -59,7 +424,7 @@ Therefore, the file is decomposed into **four relational tables**.
 
 ---
 
-## 1.3 Normalized Schema (3NF)
+## 3.3 Normalized Schema (3NF)
 
 ### **Table: school**
 | Column      | Type |
@@ -92,7 +457,7 @@ Therefore, the file is decomposed into **four relational tables**.
 | program_url         | Text (url)|
 ---
 
-## 1.4 ETL & Database Population
+## 3.4 ETL & Database Population
 
 The ETL pipeline loads the Excel files **row by row**, and inserts them into the PostgreSQL database.
 
@@ -108,9 +473,9 @@ These two files are sufficient to build the **core relational PostgreSQL databas
 
 ---
 
-# 2. QA RAG System (Retrieval-Augmented Generation)
+# 4. QA RAG System (Retrieval-Augmented Generation)
 
-## 2.1 Overview
+## 4.1 Overview
 
 In addition to the relational database, the project includes a **Retrieval‑Augmented Generation (RAG)** pipeline designed to answer questions about CaRMS programs using program descriptions.
 
@@ -123,7 +488,7 @@ Then created a table in the relational database named `program_document` to stor
 
 
 
-## 2.2 Program Document Table
+## 4.2 Program Document Table
 
 The CSV file is transformed into a structured table that links each description to its corresponding program stream.
 
@@ -143,7 +508,7 @@ Thus, below is the complete normalized relational schema created:
 
 ![POSTGRES RDB NORMALIZE RELATIONS](docs/imgs/db_relations.png)
 
-## 2.3 Text Chunking & Embeddings
+## 4.3 Text Chunking & Embeddings
 
 Long program descriptions are split into smaller, semantically meaningful chunks.
 Each chunk is then embedded using an OpenAI embedding model.
@@ -160,7 +525,7 @@ Pipeline:
 
 
 
-## 2.4 FAISS Vector Store
+## 4.4 FAISS Vector Store
 
 The embeddings are stored in a **FAISS vector index**, enabling fast similarity search.
 
@@ -172,7 +537,7 @@ The embeddings are stored in a **FAISS vector index**, enabling fast similarity 
 ![FAISS vector store creation](docs/imgs/faiss.png)
 
 
-## 2.5 Retrieval-Augmented Generation Pipeline
+## 4.5 Retrieval-Augmented Generation Pipeline
 
 The RAG pipeline follows a standard architecture:
 
@@ -188,12 +553,11 @@ The RAG pipeline follows a standard architecture:
 This ensures that all answers are grounded in real CaRMS program descriptions.
 
 ---
-# 3. FastAPI Backend (Database + QA Endpoints)
+# 5. FastAPI Backend (Database + QA Endpoints)
 
-## 3.1 Overview
+## 5.1 Overview
 
-FastAPI serves as the backend layer of the platform, exposing both the **relational database** and the **RAG QA system** through REST endpoints.
-This allows external applications, dashboards, or analysts to interact with the relational Postgres database and the QA engine.
+The API layer acts as the main interface between the data platform and external applications.
 
 The backend is fully modular and integrates:
 
@@ -204,7 +568,7 @@ The backend is fully modular and integrates:
 
 ---
 
-## 3.2 Architecture
+## 5.2 Architecture
 
 The FastAPI backend is organized into two main modules:
 
@@ -212,10 +576,6 @@ The FastAPI backend is organized into two main modules:
 These endpoints expose normalized relational data:
 
 ![data base api](docs/imgs/db_api.png)
-
-All responses are returned as JSON objects.
-
-
 
 ---
 
@@ -228,142 +588,8 @@ These endpoints allow users to query the RAG pipeline:
 This makes the QA system accessible as a simple HTTP API.
 
 ---
+## 5.3 Relational Database Endpoints
 
-## 3.3 Relational Database Endpoints (with execution screenshots)
+Detailed endpoint execution examples and screenshots are available in:
 
-Below are all relational endpoints exposed by the FastAPI backend, each with a placeholder for execution screenshots stored in `docs/imgs/`.
-
----
-
-###  Disciplines
-
-#### **GET /disciplines/**
-List all disciplines.
-![List Disciplines](docs/imgs/disciplines_list.png)
-
-#### **GET /disciplines/{discipline_id}**
-Retrieve a specific discipline.
-![Get Discipline](docs/imgs/discipline_detail.png)
-
-#### **GET /disciplines/{discipline_id}/programs**
-List all programs for a discipline.
-![Programs by Discipline](docs/imgs/programs_by_discipline.png)
-
----
-
-###  Programs
-
-#### **GET /programs/**
-List all programs.
-![List Programs](docs/imgs/programs_list.png)
-
-#### **GET /programs/{program_stream_id}**
-Retrieve a program by stream ID.
-![Program by Stream](docs/imgs/program_by_stream.png)
-
----
-
-###  Schools
-
-#### **GET /schools/**
-List all schools.
-![List Schools](docs/imgs/schools_list.png)
-
-#### **GET /schools/{school_id}**
-Retrieve a specific school.
-![Get School](docs/imgs/school_detail.png)
-
-#### **GET /schools/{school_id}/programs**
-List all programs offered by a school.
-![School Programs](docs/imgs/school_programs.png)
-
----
-
-###  Sites
-
-#### **GET /sites/**
-List all sites.
-![List Sites](docs/imgs/sites_list.png)
-
-#### **GET /sites/{site_id}**
-Retrieve a specific site.
-![Get Site](docs/imgs/site_id.png)
-
-#### **GET /sites/{site_id}/programs**
-List all programs associated with a site.
-![Site Programs](docs/imgs/site_programs.png)
-
----
-
-###  Streams
-
-#### **GET /streams/**
-List all program streams.
-![List Streams](docs/imgs/streams_list.png)
-
----
-
-# 4. Installation & Setup
-
-This section describes the full setup: **Make** , **Docker** (full stack), **visualization dashboard**, and **AWS** deployment notes.
-
----
-
-## 4.1 Quick build
-
-**Prerequisites:** Docker, Python 3.10+, `make`. On Windows use WSL2 and ensure Docker Desktop has WSL2 integration enabled.
-
-```bash
-git clone https://github.com/ElhadjDt/Junior-Data-Scientist.git
-cd Junior-Data-Scientist/carms-data-platform-demo
-cp .env.example .env
-# Edit .env: set OPENAI_API_KEY=your_key_here and optionally DATABASE_URL
-```
-
-**project build**
-```bash
-make clean   
-make build      # venv + install + DB + ETL + embeddings
-make api        # start FastAPI backend
-```
-API docs: http://localhost:8000/docs
-
-## 4.2 Visualization dashboard (Streamlit)
-
-A **Streamlit** app in `carms-data-platform-demo/dashboard/` calls the FastAPI backend:
-
-**Run the dashboard** (in another terminal with API running)
-```bash
-cd Junior-Data-Scientist/carms-data-platform-demo
-make dashboard    # Streamlit dashboard
-```
-  Open **http://localhost:8501**. To point at a different API (e.g. deployed URL), set `API_URL` in the environment.
-  Network URL: http://172.26.180.226:8501
-
-dashboard    
-![List Streams](docs/imgs/dashboard.png)
-
-## 4.3 Optional: Dagster UI
-
-```bash
-make dagster
-```
-
-![Dagster Pipeline](docs/imgs/dagster_pipeline.png)
-
-## 4.4 To explore all available commands
-```bash
-make help
-```
-
----
-
-## 4.5 AWS deployment (target architecture)
-
-A **containerized approach on AWS** is described in **[docs/aws-architecture.md](docs/aws-architecture.md)**. It outlines:
-
-- **RDS** (PostgreSQL) for the relational database
-- **ECS Fargate** or **App Runner** for the FastAPI + RAG API (image built from the project Dockerfile)
-- **S3** for raw data and FAISS index (or EFS for mount)
-- **Secrets Manager** for `OPENAI_API_KEY` and DB credentials
-- Dagster or Step Functions for ETL/orchestration
+[API Endpoints Documentation](docs/api-endpoints.md)

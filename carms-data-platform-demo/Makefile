@@ -66,7 +66,7 @@ api:
 # Run Dagster UI for pipeline orchestration
 dagster:
 	. .venv/bin/activate
-	dagster dev -m src.etl.dagster_defs
+	dg dev -m src.etl.dagster_defs
 
 # Run Streamlit dashboard (calls API; set API_URL if API runs elsewhere)
 dashboard:

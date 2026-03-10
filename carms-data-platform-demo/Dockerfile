@@ -1,24 +1,25 @@
-# CARMS Data Platform API — containerized FastAPI backend.
-# Build from carms-data-platform-demo directory: docker build -t carms-api .
-# Override DATABASE_URL and FAISS_PATH at runtime for AWS/stack deployment.
 FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y --no-install-recommends bash && \
+    rm -rf /var/lib/apt/lists/*
 
-# Application code
-COPY src ./src
-COPY .env.example .env.example
-
-# Default env (override with docker-compose or ECS task def)
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
 ENV DATA_DIR=/data
 ENV FAISS_PATH=/data/embeddings/faiss_index
 
-EXPOSE 8000
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Run FastAPI with uvicorn
+COPY src ./src
+COPY dashboard ./dashboard
+COPY .env.example ./.env.example
+
+EXPOSE 8000
+EXPOSE 8501
+
 CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

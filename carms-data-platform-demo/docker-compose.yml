@@ -1,14 +1,10 @@
-# CARMS platform: PostgreSQL, pgAdmin, and FastAPI API.
-# Run from carms-data-platform-demo: docker compose up -d
-# API expects DB to be initialized and FAISS index at ../data/embeddings/faiss_index
-# (run ETL and embeddings locally or via Makefile before first API use, or mount pre-built data).
 version: "3.9"
 
 services:
   db:
     image: postgres:16
     container_name: carms_postgres
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: carms
       POSTGRES_PASSWORD: carms
@@ -17,23 +13,73 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - carms_net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U carms -d carms_db"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+    networks:
+      - carms_net
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: carms_pgadmin
-    restart: always
+  init-db:
+    build: .
+    container_name: carms_init_db
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "5050:80"
+      DATABASE_URL: postgresql+psycopg2://carms:carms@db:5432/carms_db
+      DATA_DIR: /data
+      FAISS_PATH: /data/embeddings/faiss_index
+    env_file:
+      - .env
+    command: ["python", "-m", "src.db.init_db"]
+    volumes:
+      - ../data:/data
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - carms_net
+
+  etl:
+    build: .
+    container_name: carms_etl
+    environment:
+      DATABASE_URL: postgresql+psycopg2://carms:carms@db:5432/carms_db
+      DATA_DIR: /data
+      FAISS_PATH: /data/embeddings/faiss_index
+    env_file:
+      - .env
+    command:
+      [
+        "bash",
+        "-c",
+        "python -m src.etl.extract_zip && \
+         python -m src.etl.load_disciplines_from_excel && \
+         python -m src.etl.load_programs_from_excel && \
+         python -m src.etl.load_program_documents_from_csv"
+      ]
+    volumes:
+      - ../data:/data
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - carms_net
+
+  embeddings:
+    build: .
+    container_name: carms_embeddings
+    environment:
+      DATABASE_URL: postgresql+psycopg2://carms:carms@db:5432/carms_db
+      DATA_DIR: /data
+      FAISS_PATH: /data/embeddings/faiss_index
+    env_file:
+      - .env
+    command: ["python", "-m", "src.qa.embeddings"]
+    volumes:
+      - ../data:/data
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
       - carms_net
 
@@ -41,17 +87,63 @@ services:
     build: .
     container_name: carms_api
     restart: unless-stopped
-    ports:
-      - "8000:8000"
     environment:
       DATABASE_URL: postgresql+psycopg2://carms:carms@db:5432/carms_db
       DATA_DIR: /data
       FAISS_PATH: /data/embeddings/faiss_index
     env_file:
       - .env
+    command: ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
     volumes:
-      # Mount data dir so pre-built FAISS index and optional raw data are available
-      - ./data:/data:ro
+      - ../data:/data
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - carms_net
+
+  dashboard:
+    build: .
+    container_name: carms_dashboard
+    restart: unless-stopped
+    environment:
+      API_URL: http://api:8000
+      DATA_DIR: /data
+      FAISS_PATH: /data/embeddings/faiss_index
+    env_file:
+      - .env
+    command:
+      [
+        "streamlit",
+        "run",
+        "dashboard/app.py",
+        "--server.address=0.0.0.0",
+        "--server.port=8501"
+      ]
+    ports:
+      - "8501:8501"
+    volumes:
+      - ../data:/data
+    depends_on:
+      - api
+    networks:
+      - carms_net
+    
+  dagster:
+    build: .
+    command: ["dagster", "dev", "-h", "0.0.0.0", "-p", "3000", "-m", "src.etl.dagster_defs"]
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../data:/data
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://carms:carms@db:5432/carms_db
+      DATA_DIR: /data
+      FAISS_PATH: /data/embeddings/faiss_index
     depends_on:
       db:
         condition: service_healthy
