@@ -18,7 +18,7 @@ Below are all relational endpoints exposed by the FastAPI backend, each with an 
 
 List all disciplines.
 
-!\[List Disciplines](imgs/disciplines\_list.png)
+!\[List Disciplines](./imgs/disciplines\_list.png)
 
 
 
@@ -139,5 +139,6 @@ List all programs associated with a site.
 List all program streams.
 
 !\[List Streams](imgs/streams\_list.png)
+
 
 
