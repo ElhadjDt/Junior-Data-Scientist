@@ -18,7 +18,7 @@ Below are all relational endpoints exposed by the FastAPI backend, each with an 
 
 List all disciplines.
 
-!\[List Disciplines](docs/imgs/disciplines\_list.png)
+!\[List Disciplines](imgs/disciplines\_list.png)
 
 
 
@@ -26,7 +26,7 @@ List all disciplines.
 
 Retrieve a specific discipline.
 
-!\[Get Discipline](docs/imgs/discipline\_detail.png)
+!\[Get Discipline](imgs/discipline\_detail.png)
 
 
 
@@ -34,7 +34,7 @@ Retrieve a specific discipline.
 
 List all programs for a discipline.
 
-!\[Programs by Discipline](docs/imgs/programs\_by\_discipline.png)
+!\[Programs by Discipline](imgs/programs\_by\_discipline.png)
 
 
 
@@ -50,7 +50,7 @@ List all programs for a discipline.
 
 List all programs.
 
-!\[List Programs](docs/imgs/programs\_list.png)
+!\[List Programs](imgs/programs\_list.png)
 
 
 
@@ -58,7 +58,7 @@ List all programs.
 
 Retrieve a program by stream ID.
 
-!\[Program by Stream](docs/imgs/program\_by\_stream.png)
+!\[Program by Stream](imgs/program\_by\_stream.png)
 
 
 
@@ -74,7 +74,7 @@ Retrieve a program by stream ID.
 
 List all schools.
 
-!\[List Schools](docs/imgs/schools\_list.png)
+!\[List Schools](imgs/schools\_list.png)
 
 
 
@@ -82,7 +82,7 @@ List all schools.
 
 Retrieve a specific school.
 
-!\[Get School](docs/imgs/school\_detail.png)
+!\[Get School](imgs/school\_detail.png)
 
 
 
@@ -90,7 +90,7 @@ Retrieve a specific school.
 
 List all programs offered by a school.
 
-!\[School Programs](docs/imgs/school\_programs.png)
+!\[School Programs](imgs/school\_programs.png)
 
 
 
@@ -106,7 +106,7 @@ List all programs offered by a school.
 
 List all sites.
 
-!\[List Sites](docs/imgs/sites\_list.png)
+!\[List Sites](imgs/sites\_list.png)
 
 
 
@@ -114,7 +114,7 @@ List all sites.
 
 Retrieve a specific site.
 
-!\[Get Site](docs/imgs/site\_id.png)
+!\[Get Site](imgs/site\_id.png)
 
 
 
@@ -122,7 +122,7 @@ Retrieve a specific site.
 
 List all programs associated with a site.
 
-!\[Site Programs](docs/imgs/site\_programs.png)
+!\[Site Programs](imgs/site\_programs.png)
 
 
 
@@ -138,5 +138,6 @@ List all programs associated with a site.
 
 List all program streams.
 
-!\[List Streams](docs/imgs/streams\_list.png)
+!\[List Streams](imgs/streams\_list.png)
+
 
