@@ -9,136 +9,68 @@ Below are all relational endpoints exposed by the FastAPI backend, each with an 
 ---
 
 
+###  Disciplines
 
-\###  Disciplines
-
-
-
-\#### \*\*GET /disciplines/\*\*
-
+#### **GET /disciplines/**
 List all disciplines.
+![List Disciplines](imgs/disciplines_list.png)
 
-!\[List Disciplines](./imgs/disciplines\_list.png)
-
-
-
-\#### \*\*GET /disciplines/{discipline\_id}\*\*
-
+#### **GET /disciplines/{discipline_id}**
 Retrieve a specific discipline.
+![Get Discipline](imgs/discipline_detail.png)
 
-!\[Get Discipline](imgs/discipline\_detail.png)
-
-
-
-\#### \*\*GET /disciplines/{discipline\_id}/programs\*\*
-
+#### **GET /disciplines/{discipline_id}/programs**
 List all programs for a discipline.
-
-!\[Programs by Discipline](imgs/programs\_by\_discipline.png)
-
-
+![Programs by Discipline](imgs/programs_by_discipline.png)
 
 ---
 
+###  Programs
 
-
-\###  Programs
-
-
-
-\#### \*\*GET /programs/\*\*
-
+#### **GET /programs/**
 List all programs.
+![List Programs](imgs/programs_list.png)
 
-!\[List Programs](imgs/programs\_list.png)
-
-
-
-\#### \*\*GET /programs/{program\_stream\_id}\*\*
-
+#### **GET /programs/{program_stream_id}**
 Retrieve a program by stream ID.
-
-!\[Program by Stream](imgs/program\_by\_stream.png)
-
-
+![Program by Stream](imgs/program_by_stream.png)
 
 ---
 
+###  Schools
 
-
-\###  Schools
-
-
-
-\#### \*\*GET /schools/\*\*
-
+#### **GET /schools/**
 List all schools.
+![List Schools](imgs/schools_list.png)
 
-!\[List Schools](imgs/schools\_list.png)
-
-
-
-\#### \*\*GET /schools/{school\_id}\*\*
-
+#### **GET /schools/{school_id}**
 Retrieve a specific school.
+![Get School](imgs/school_detail.png)
 
-!\[Get School](imgs/school\_detail.png)
-
-
-
-\#### \*\*GET /schools/{school\_id}/programs\*\*
-
+#### **GET /schools/{school_id}/programs**
 List all programs offered by a school.
-
-!\[School Programs](imgs/school\_programs.png)
-
-
+![School Programs](imgs/school_programs.png)
 
 ---
 
+###  Sites
 
-
-\###  Sites
-
-
-
-\#### \*\*GET /sites/\*\*
-
+#### **GET /sites/**
 List all sites.
+![List Sites](imgs/sites_list.png)
 
-!\[List Sites](imgs/sites\_list.png)
-
-
-
-\#### \*\*GET /sites/{site\_id}\*\*
-
+#### **GET /sites/{site_id}**
 Retrieve a specific site.
+![Get Site](imgs/site_id.png)
 
-!\[Get Site](imgs/site\_id.png)
-
-
-
-\#### \*\*GET /sites/{site\_id}/programs\*\*
-
+#### **GET /sites/{site_id}/programs**
 List all programs associated with a site.
-
-!\[Site Programs](imgs/site\_programs.png)
-
-
+![Site Programs](imgs/site_programs.png)
 
 ---
 
+###  Streams
 
-
-\###  Streams
-
-
-
-\#### \*\*GET /streams/\*\*
-
+#### **GET /streams/**
 List all program streams.
-
-!\[List Streams](imgs/streams\_list.png)
-
-
-
+![List Streams](imgs/streams_list.png)
