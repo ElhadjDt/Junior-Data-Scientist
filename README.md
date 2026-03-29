@@ -90,8 +90,8 @@ docker compose version
 # 2.2 Clone the Repository
 
 ```bash
-git clone https://github.com/ElhadjDt/Junior-Data-Scientist.git
-cd Junior-Data-Scientist/carms-data-platform-demo
+git clone https://github.com/ElhadjDt/carms-data-platform.git
+cd carms-data-platform/carms-data-platform-demo
 ```
 
 # 2.3 Configure Environment Variables
