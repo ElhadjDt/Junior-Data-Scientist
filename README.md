@@ -1,4 +1,4 @@
-# CARMS Data Platform — End-to-End Data Engineering Project
+# CARMS Data Platform Engineering Project
 
 This project implements a **data platform built around public CaRMS residency program data**.  
 It demonstrates how raw datasets can be transformed into a structured analytical platform with automated pipelines, a relational database, an API layer, and a Retrieval-Augmented Generation (RAG) system.
